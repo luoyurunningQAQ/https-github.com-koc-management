@@ -35,12 +35,14 @@ export default async function ApplicationDetailPage({
     .eq('app_id', id)
     .order('created_at', { ascending: false })
 
-  const statusConfig = {
+  const statusConfig: Record<string, { label: string; color: string }> = {
     pending: { label: '待审核', color: 'orange' },
     approved: { label: '已通过', color: 'blue' },
     driving: { label: '在用车', color: 'green' },
     finished: { label: '已完成', color: 'gray' }
   }
+
+  const currentStatus = statusConfig[application.status] || statusConfig.pending
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -66,8 +68,8 @@ export default async function ApplicationDetailPage({
                 <div>
                   <label className="text-sm text-gray-500">状态</label>
                   <div className="mt-1">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${statusConfig[application.status].color}-100 text-${statusConfig[application.status].color}-800`}>
-                      {statusConfig[application.status].label}
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${currentStatus.color}-100 text-${currentStatus.color}-800`}>
+                      {currentStatus.label}
                     </span>
                   </div>
                 </div>

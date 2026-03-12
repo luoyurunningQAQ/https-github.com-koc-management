@@ -48,7 +48,9 @@ export async function POST(request: NextRequest) {
     // 遍历每个申请进行抓取
     for (const app of applications) {
       try {
-        console.log(`\n🔍 监测 KOC: ${app.name} (${app.cars?.name})`)
+        // 获取车型名称
+        const carName = Array.isArray(app.cars) ? app.cars[0]?.name : (app.cars as any)?.name
+        console.log(`\n🔍 监测 KOC: ${app.name} (${carName || '未知车型'})`)
 
         // 解析关键词
         const keywords = parseKeywords(app.keywords)
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
             applicationId: app.id,
             platform,
             platformUrl: app.platform_url,
-            carName: app.cars?.name || '',
+            carName: carName || '',
             keywords
           },
           apifyApiKey
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
 
         // 匹配关键词
         for (const content of crawledContents) {
-          const isMatch = matchKeywords(content, app.cars?.name || '', keywords)
+          const isMatch = matchKeywords(content, carName || '', keywords)
 
           if (isMatch) {
             console.log(`  ✅ 匹配成功: ${content.title}`)
@@ -123,7 +125,7 @@ export async function POST(request: NextRequest) {
             // 发送飞书通知
             const feishuSuccess = await sendFeishuCard({
               kocName: app.name,
-              carName: app.cars?.name || '',
+              carName: carName || '',
               matchType: 'auto',
               contentTitle: content.title,
               contentLink: content.url,
